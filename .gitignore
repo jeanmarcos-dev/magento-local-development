@@ -1,0 +1,42 @@
+# Magento 2 generated artifacts (never commit)
+generated/
+var/
+pub/static/_cache/
+pub/static/frontend/
+pub/static/adminhtml/
+pub/media/catalog/
+pub/media/import/
+
+# Composer
+vendor/
+composer.phar
+
+# Node / livereload servers
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm/
+
+# IDE & editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Local environment / secrets
+.env
+.env.local
+*.local.php
+
+# Test & coverage
+.phpunit.result.cache
+coverage/
+phpunit.xml.local
+
+# Logs
+*.log

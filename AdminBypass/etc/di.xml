@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Bypass admin password validation — accepts any password -->
+    <type name="Magento\User\Model\User">
+        <plugin name="development_admin_bypass_authentication"
+                type="Development\AdminBypass\Plugin\BypassAdminAuthentication"
+                sortOrder="1"/>
+    </type>
+
+    <!-- Autologin: auto-authenticate with default Zento admin on login page visit -->
+    <type name="Magento\Backend\Controller\Adminhtml\Auth\Login">
+        <plugin name="development_admin_autologin"
+                type="Development\AdminBypass\Plugin\AdminAutologin"
+                sortOrder="1"/>
+    </type>
+</config>

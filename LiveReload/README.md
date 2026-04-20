@@ -1,0 +1,126 @@
+# Development_LiveReload
+
+> ⚠️ **FOR LOCAL DEVELOPMENT ONLY** — Production injection is disabled by default.
+
+Injects the [LiveReload](http://livereload.com/) browser auto-reload script into Magento 2 storefront and admin pages, so code changes refresh the browser without manual `F5`.
+
+---
+
+## What it does
+
+Injects the following tag just before `</body>` on every storefront and admin page:
+
+```html
+<script defer src="/livereload.js?port=443"></script>
+```
+
+The script is rendered by `Development\LiveReload\Block\Head\LiveReloadScript`, which reads the production guard before rendering.
+
+A local LiveReload server (e.g. `npx livereload ./pub`) must serve `/livereload.js` for the browser to connect.
+
+---
+
+## Safety model
+
+| Mode | `Allow in Production` flag | Behavior |
+|---|---|---|
+| `developer` / `default` | any | **script injected** |
+| `production` | `No` (default) | **not injected** |
+| `production` | `Yes` | **script injected** |
+
+Implementation: `Helper/Config.php::isEnabled()` + `Block\Head\LiveReloadScript::_toHtml()` — when disabled, returns an empty string so nothing reaches the page.
+
+The block's `getCacheKeyInfo()` includes the flag, so layout/block cache stays consistent across toggles without needing a full cache flush.
+
+---
+
+## Configuration
+
+Panel path: **Stores → Configuration → ⚠ Development Modules → Live Reload → General → Allow in Production**
+
+- Default: `No`.
+- Changing the flag requires `bin/magento cache:clean config layout block_html`.
+
+---
+
+## Install
+
+```bash
+bin/magento module:enable Development_LiveReload
+bin/magento setup:upgrade
+bin/magento cache:flush
+```
+
+Then start a LiveReload server pointing at your theme assets:
+
+```bash
+# Node-based server example
+npx livereload pub/static -p 443
+
+# Or with livereload-bin
+livereload ./ --port 443
+```
+
+## Kill switch
+
+```bash
+bin/magento module:disable Development_LiveReload
+bin/magento setup:upgrade
+bin/magento cache:flush
+```
+
+---
+
+## Security and performance considerations
+
+- Low security impact on its own — serves only static reload JS.
+- If left on in production with no LiveReload server running, every page load returns `404` on `/livereload.js`, polluting logs and breaking the page speed budget by a negligible margin.
+- The script is loaded with `defer`, so it does not block rendering.
+
+---
+
+## File structure
+
+```
+LiveReload/
+├── Block/
+│   └── Head/
+│       └── LiveReloadScript.php
+├── Helper/
+│   └── Config.php
+├── etc/
+│   ├── acl.xml
+│   ├── adminhtml/
+│   │   └── system.xml
+│   ├── config.xml
+│   └── module.xml
+├── view/
+│   ├── adminhtml/
+│   │   └── layout/
+│   │       └── default.xml
+│   ├── base/
+│   │   └── templates/
+│   │       └── head/
+│   │           └── livereload.phtml
+│   └── frontend/
+│       └── layout/
+│           └── default_head_blocks.xml
+├── registration.php
+└── README.md
+```
+
+---
+
+## Troubleshooting
+
+- **Script doesn't appear:** check `bin/magento deploy:mode:show`; if in production, check the flag; then `cache:clean layout block_html`.
+- **Port mismatch:** the path `/livereload.js?port=443` is hardcoded in `view/base/templates/head/livereload.phtml`. Edit the template if your server uses a different port.
+- **404 on `/livereload.js`:** LiveReload server is not running — start it or disable this module.
+
+---
+
+## Compatibility
+
+- Magento 2.4.x
+- PHP 8.1+
+- Depends on `Development_AdminBypass` only for the shared `development` tab definition in `Stores → Configuration`. If you use this module standalone, copy the `<tab id="development">` block from `AdminBypass/etc/adminhtml/system.xml` into this module's `system.xml`.

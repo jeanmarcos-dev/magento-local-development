@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="development_live_reload"
+                 translate="label"
+                 sortOrder="30"
+                 showInDefault="1"
+                 showInWebsite="1"
+                 showInStore="1">
+            <label>Live Reload</label>
+            <tab>development</tab>
+            <resource>Development_LiveReload::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <comment><![CDATA[<div style="background:#d1ecf1;border:1px solid #bee5eb;padding:10px;color:#0c5460;">
+                    <strong>&#x2139; Note:</strong> Injects <code>/livereload.js?port=443</code> into storefront and admin pages for browser auto-reload during development.
+                    Low security impact but adds a <code>404</code> on every page load in production if the livereload server is not running.
+                </div>]]></comment>
+                <field id="allow_in_production"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Allow in Production</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When Magento runs in production mode, the script is NOT injected unless you explicitly set this to Yes.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

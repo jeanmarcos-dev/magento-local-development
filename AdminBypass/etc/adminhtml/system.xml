@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="development" translate="label" sortOrder="999">
+            <label>&#x26A0; Development Modules</label>
+        </tab>
+        <section id="development_admin_bypass"
+                 translate="label"
+                 sortOrder="10"
+                 showInDefault="1"
+                 showInWebsite="1"
+                 showInStore="1">
+            <label>Admin Bypass</label>
+            <tab>development</tab>
+            <resource>Development_AdminBypass::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <comment><![CDATA[<div style="background:#fff3cd;border:1px solid #ffeeba;padding:10px;color:#856404;">
+                    <strong>&#x26A0; DANGER:</strong> This module bypasses all admin authentication and auto-logs in a hardcoded user.
+                    It is intended for <strong>local development only</strong>. Enabling it in production exposes the admin panel to anyone.
+                </div>]]></comment>
+                <field id="allow_in_production"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Allow in Production</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When Magento runs in production mode, the bypass is OFF unless you explicitly set this to Yes. Never enable on a public site.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
