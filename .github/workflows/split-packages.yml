@@ -1,8 +1,10 @@
 name: Split packages
 
 # Splits each subdirectory of this monorepo into its own read-only repo,
-# which is what Packagist points to. Runs on every push to main and on
-# every tag — tags are propagated to the split repos automatically.
+# which is what Packagist points to.
+#
+# - On push to main → updates the `main` branch of each split repo.
+# - On tag push     → creates the same tag on each split repo (Packagist auto-publishes).
 #
 # Source of truth: this monorepo. The split repos must NOT receive manual
 # commits — they are force-pushed from this workflow.
@@ -39,13 +41,28 @@ jobs:
           # Full history is required so splitsh-lite can rewrite it.
           fetch-depth: 0
 
-      - name: Split ${{ matrix.local }}
+      # On push to a branch (main): mirror the directory to the split repo's main.
+      - name: Update branch ${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/heads/')
         uses: symplify/monorepo-split-github-action@v2.3.0
         env:
-          # PAT with `repo` scope, configured as a repository secret.
-          # The default GITHUB_TOKEN cannot push to other repos.
           GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
         with:
+          branch: ${{ github.ref_name }}
+          package_directory: ${{ matrix.local }}
+          repository_organization: jeanmarcos-dev
+          repository_name: ${{ matrix.split }}
+          user_name: "Jeanmarcos Juarez"
+          user_email: "janmarcoj@gmail.com"
+
+      # On tag push: create the same tag on the split repo.
+      - name: Create tag ${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: symplify/monorepo-split-github-action@v2.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        with:
+          tag: ${{ github.ref_name }}
           package_directory: ${{ matrix.local }}
           repository_organization: jeanmarcos-dev
           repository_name: ${{ matrix.split }}
