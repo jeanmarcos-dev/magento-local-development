@@ -2,14 +2,15 @@
 
 A small suite of Magento 2 modules designed **exclusively for local development** environments. Each module alters native Magento behavior to speed up the development loop (admin/customer auth bypass, live browser reload).
 
-Each module is published as an independent Composer package and can be installed on its own. They share a small **core** package that provides the production-mode guard and the shared admin tab.
+Each module is published as an independent Composer package and can be installed on its own. They share a small **core** package that provides the production-mode guard and the shared admin tab. A **suite** meta-package is also available for installing the whole set in one command.
 
-| Module | Composer package | Purpose |
-|---|---|---|
-| [**Core**](./Core/README.md) | `jeanmarcos/module-core-local-development` | Shared production-guard service (`ProductionGuard`) + the `⚠ Development Modules` admin tab. No user-facing behavior on its own. |
-| [**AdminBypass**](./AdminBypass/README.md) | `jeanmarcos/module-admin-bypass` | Accepts any admin password and auto-logs in a hardcoded user (`local`/`local123`). |
-| [**CustomerBypass**](./CustomerBypass/README.md) | `jeanmarcos/module-customer-bypass` | Accepts any password for any existing customer on storefront login. |
-| [**LiveReload**](./LiveReload/README.md) | `jeanmarcos/module-livereload` | Injects `/livereload.js` on storefront and admin pages for automatic browser reload. |
+| Package | Composer name | Type | Purpose |
+|---|---|---|---|
+| [**Suite**](./Suite/README.md) | `jeanmarcos/magento-local-development-suite` | metapackage | Installs the full set in one `composer require`. |
+| [**Core**](./Core/README.md) | `jeanmarcos/module-core-local-development` | magento2-module | Shared production-guard service (`ProductionGuard`) + the `⚠ Development Modules` admin tab. No user-facing behavior on its own. |
+| [**AdminBypass**](./AdminBypass/README.md) | `jeanmarcos/module-admin-bypass` | magento2-module | Accepts any admin password and auto-logs in a hardcoded user (`local`/`local123`). |
+| [**CustomerBypass**](./CustomerBypass/README.md) | `jeanmarcos/module-customer-bypass` | magento2-module | Accepts any password for any existing customer on storefront login. |
+| [**LiveReload**](./LiveReload/README.md) | `jeanmarcos/module-livereload` | magento2-module | Injects `/livereload.js` on storefront and admin pages for automatic browser reload. |
 
 > ⚠️ **GLOBAL SECURITY NOTICE**
 >
@@ -21,7 +22,13 @@ Each module is published as an independent Composer package and can be installed
 
 ## Install
 
-Pick the modules you need — Composer pulls in the shared core automatically:
+The fastest path — install everything at once via the suite meta-package:
+
+```bash
+composer require --dev jeanmarcos/magento-local-development-suite
+```
+
+Or pick only the modules you need (Composer pulls in the shared core automatically):
 
 ```bash
 composer require --dev jeanmarcos/module-admin-bypass
