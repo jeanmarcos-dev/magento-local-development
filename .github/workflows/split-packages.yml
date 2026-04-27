@@ -1,0 +1,53 @@
+name: Split packages
+
+# Splits each subdirectory of this monorepo into its own read-only repo,
+# which is what Packagist points to. Runs on every push to main and on
+# every tag — tags are propagated to the split repos automatically.
+#
+# Source of truth: this monorepo. The split repos must NOT receive manual
+# commits — they are force-pushed from this workflow.
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+
+jobs:
+  split:
+    name: Split ${{ matrix.local }} → ${{ matrix.split }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - local: Core
+            split: module-core-local-development
+          - local: AdminBypass
+            split: module-admin-bypass
+          - local: CustomerBypass
+            split: module-customer-bypass
+          - local: LiveReload
+            split: module-livereload
+
+    steps:
+      - name: Checkout monorepo
+        uses: actions/checkout@v4
+        with:
+          # Full history is required so splitsh-lite can rewrite it.
+          fetch-depth: 0
+
+      - name: Split ${{ matrix.local }}
+        uses: symplify/monorepo-split-github-action@v2.3.0
+        env:
+          # PAT with `repo` scope, configured as a repository secret.
+          # The default GITHUB_TOKEN cannot push to other repos.
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        with:
+          package_directory: ${{ matrix.local }}
+          repository_organization: jeanmarcos-dev
+          repository_name: ${{ matrix.split }}
+          user_name: "Jeanmarcos Juarez"
+          user_email: "janmarcoj@gmail.com"
