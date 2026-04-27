@@ -1,0 +1,54 @@
+{
+    "name": "jeanmarcos/module-mcp-dev-tools",
+    "description": "Magento 2 development module that exposes a Model Context Protocol (MCP) server, letting LLM clients (Claude Code, Cursor, Continue, etc.) introspect a running Magento installation: list modules, find plugins, resolve classes, describe DI graph, look up routes/observers/config. Read-only in v0.1. For local development only.",
+    "type": "magento2-module",
+    "license": "MIT",
+    "keywords": [
+        "magento",
+        "magento2",
+        "magento-2",
+        "development",
+        "dev-tools",
+        "mcp",
+        "model-context-protocol",
+        "llm",
+        "claude",
+        "cursor",
+        "introspection"
+    ],
+    "authors": [
+        {
+            "name": "Jeanmarcos Juarez",
+            "email": "janmarcoj@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~8.1.0||~8.2.0||~8.3.0",
+        "ext-json": "*",
+        "magento/framework": ">=103.0",
+        "magento/module-backend": "*",
+        "magento/module-config": "*",
+        "magento/module-store": "*",
+        "logiscape/mcp-sdk-php": "^1.7",
+        "jeanmarcos/module-core-local-development": "^1.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Development\\McpDevTools\\": ""
+        }
+    },
+    "archive": {
+        "exclude": [
+            "/.github",
+            "/tests",
+            "/.gitignore",
+            "/.editorconfig",
+            "/phpunit.xml",
+            "/phpstan.neon",
+            "/phpcs.xml"
+        ]
+    }
+}

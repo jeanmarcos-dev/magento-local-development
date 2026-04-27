@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="development_mcp_dev_tools"
+                 translate="label"
+                 sortOrder="40"
+                 showInDefault="1"
+                 showInWebsite="1"
+                 showInStore="1">
+            <label>MCP Dev Tools</label>
+            <tab>development</tab>
+            <resource>Development_McpDevTools::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <comment><![CDATA[<div style="background:#d1ecf1;border:1px solid #bee5eb;padding:10px;color:#0c5460;">
+                    <strong>&#x2139; Note:</strong> Exposes a Model Context Protocol (MCP) server so LLM clients (Claude Code, Cursor, etc.) can introspect this Magento installation.
+                    Stdio transport: <code>bin/magento mcp:serve</code>. HTTP transport (experimental): <code>POST /dev-mcp</code>.
+                    Disabled in production unless explicitly allowed below.
+                </div>]]></comment>
+                <field id="allow_in_production"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Allow in Production</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When Magento runs in production mode, the MCP server is OFF unless you explicitly set this to Yes.</comment>
+                </field>
+            </group>
+            <group id="http" translate="label" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>HTTP Transport (experimental)</label>
+                <field id="auth_token"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>Auth Token</label>
+                    <comment><![CDATA[Required in the <code>X-MCP-Token</code> header for HTTP requests. Auto-generated on install. Regenerate by clearing this field, then run <code>bin/magento setup:upgrade</code>.]]></comment>
+                </field>
+                <field id="http_loopback_only"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>Loopback Only</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When Yes, the HTTP endpoint only accepts requests from 127.0.0.1 / ::1. Recommended.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

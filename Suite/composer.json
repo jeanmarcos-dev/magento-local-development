@@ -1,6 +1,6 @@
 {
     "name": "jeanmarcos/magento-local-development-suite",
-    "description": "Meta-package: installs the full Magento 2 local-development suite (Core + AdminBypass + CustomerBypass + LiveReload) in a single composer require. For local development only — every package guards itself against production mode.",
+    "description": "Meta-package: installs the full Magento 2 local-development suite (Core + AdminBypass + CustomerBypass + LiveReload + McpDevTools) in a single composer require. For local development only — every package guards itself against production mode.",
     "type": "metapackage",
     "license": "MIT",
     "keywords": [
@@ -24,6 +24,7 @@
         "jeanmarcos/module-core-local-development": "^1.0",
         "jeanmarcos/module-admin-bypass": "^1.0",
         "jeanmarcos/module-customer-bypass": "^1.0",
-        "jeanmarcos/module-livereload": "^1.0"
+        "jeanmarcos/module-livereload": "^1.0",
+        "jeanmarcos/module-mcp-dev-tools": "^1.0"
     }
 }

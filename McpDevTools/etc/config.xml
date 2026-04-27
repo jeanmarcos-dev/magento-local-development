@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <development>
+            <mcp_dev_tools>
+                <allow_in_production>0</allow_in_production>
+                <auth_token></auth_token>
+                <http_loopback_only>1</http_loopback_only>
+            </mcp_dev_tools>
+        </development>
+    </default>
+</config>

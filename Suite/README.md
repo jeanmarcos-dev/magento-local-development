@@ -27,6 +27,7 @@ This package contains **no code of its own** (`type: metapackage`). It just decl
 | [`jeanmarcos/module-admin-bypass`](https://packagist.org/packages/jeanmarcos/module-admin-bypass) | Accepts any admin password and auto-logs in a hardcoded user (`local`/`local123`). |
 | [`jeanmarcos/module-customer-bypass`](https://packagist.org/packages/jeanmarcos/module-customer-bypass) | Accepts any password for any existing customer on storefront login. |
 | [`jeanmarcos/module-livereload`](https://packagist.org/packages/jeanmarcos/module-livereload) | Injects `/livereload.js` on storefront and admin pages for automatic browser reload. |
+| [`jeanmarcos/module-mcp-dev-tools`](https://packagist.org/packages/jeanmarcos/module-mcp-dev-tools) | MCP server (stdio + experimental HTTP) for LLM clients (Claude Code, Cursor) to introspect modules / plugins / observers / routes / DI graph / config. |
 
 Every package implements the same production guard: in `production` mode they short-circuit and behave as if not installed, unless you explicitly toggle `Allow in Production` in the admin panel (do not).
 
@@ -40,7 +41,8 @@ bin/magento module:enable \
     Development_Core \
     Development_AdminBypass \
     Development_CustomerBypass \
-    Development_LiveReload
+    Development_LiveReload \
+    Development_McpDevTools
 bin/magento setup:upgrade
 bin/magento setup:di:compile
 bin/magento cache:flush
@@ -53,6 +55,7 @@ bin/magento module:disable \
     Development_AdminBypass \
     Development_CustomerBypass \
     Development_LiveReload \
+    Development_McpDevTools \
     Development_Core
 bin/magento setup:upgrade
 bin/magento cache:flush

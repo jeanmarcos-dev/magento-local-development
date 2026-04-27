@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Development\McpDevTools\Model\ProductionGuard"
+                 type="Development\Core\Model\ProductionGuard">
+        <arguments>
+            <argument name="configPath" xsi:type="string">development/mcp_dev_tools/allow_in_production</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Development\McpDevTools\Mcp\ServerFactory">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\McpDevTools\Model\ProductionGuard</argument>
+            <argument name="tools" xsi:type="array">
+                <item name="list_modules" xsi:type="object">Development\McpDevTools\Mcp\Tool\ListModulesTool</item>
+                <item name="find_plugins" xsi:type="object">Development\McpDevTools\Mcp\Tool\FindPluginsTool</item>
+                <item name="find_observers" xsi:type="object">Development\McpDevTools\Mcp\Tool\FindObserversTool</item>
+                <item name="resolve_class" xsi:type="object">Development\McpDevTools\Mcp\Tool\ResolveClassTool</item>
+                <item name="list_routes" xsi:type="object">Development\McpDevTools\Mcp\Tool\ListRoutesTool</item>
+                <item name="get_config" xsi:type="object">Development\McpDevTools\Mcp\Tool\GetConfigTool</item>
+                <item name="which_module" xsi:type="object">Development\McpDevTools\Mcp\Tool\WhichModuleTool</item>
+                <item name="describe_di" xsi:type="object">Development\McpDevTools\Mcp\Tool\DescribeDiTool</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Development\McpDevTools\Console\Command\ServeCommand">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\McpDevTools\Model\ProductionGuard</argument>
+        </arguments>
+    </type>
+
+    <type name="Development\McpDevTools\Controller\Index\Index">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\McpDevTools\Model\ProductionGuard</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="development_mcp_dev_tools_serve" xsi:type="object">Development\McpDevTools\Console\Command\ServeCommand</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

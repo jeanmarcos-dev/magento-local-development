@@ -11,6 +11,7 @@ Each module is published as an independent Composer package and can be installed
 | [**AdminBypass**](./AdminBypass/README.md) | `jeanmarcos/module-admin-bypass` | magento2-module | Accepts any admin password and auto-logs in a hardcoded user (`local`/`local123`). |
 | [**CustomerBypass**](./CustomerBypass/README.md) | `jeanmarcos/module-customer-bypass` | magento2-module | Accepts any password for any existing customer on storefront login. |
 | [**LiveReload**](./LiveReload/README.md) | `jeanmarcos/module-livereload` | magento2-module | Injects `/livereload.js` on storefront and admin pages for automatic browser reload. |
+| [**McpDevTools**](./McpDevTools/README.md) | `jeanmarcos/module-mcp-dev-tools` | magento2-module | MCP server (stdio + experimental HTTP) — exposes Magento introspection (modules, plugins, observers, routes, DI graph) to LLM clients like Claude Code and Cursor. |
 
 > ⚠️ **GLOBAL SECURITY NOTICE**
 >
@@ -34,6 +35,7 @@ Or pick only the modules you need (Composer pulls in the shared core automatical
 composer require --dev jeanmarcos/module-admin-bypass
 composer require --dev jeanmarcos/module-customer-bypass
 composer require --dev jeanmarcos/module-livereload
+composer require --dev jeanmarcos/module-mcp-dev-tools
 ```
 
 Then enable in Magento (the order is irrelevant; `<sequence>` handles it):
@@ -43,7 +45,8 @@ bin/magento module:enable \
     Development_Core \
     Development_AdminBypass \
     Development_CustomerBypass \
-    Development_LiveReload
+    Development_LiveReload \
+    Development_McpDevTools
 
 bin/magento setup:upgrade
 bin/magento setup:di:compile
@@ -64,6 +67,7 @@ bin/magento module:disable \
     Development_AdminBypass \
     Development_CustomerBypass \
     Development_LiveReload \
+    Development_McpDevTools \
     Development_Core
 
 bin/magento setup:upgrade
@@ -90,6 +94,7 @@ All consumer modules share a single guard service: `Development\Core\Model\Produ
 | AdminBypass | `development/admin_bypass/allow_in_production` |
 | CustomerBypass | `development/customer_bypass/allow_in_production` |
 | LiveReload | `development/live_reload/allow_in_production` |
+| McpDevTools | `development/mcp_dev_tools/allow_in_production` |
 
 All default to `0` (No).
 
