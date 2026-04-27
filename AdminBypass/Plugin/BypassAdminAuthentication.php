@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Development\AdminBypass\Plugin;
 
-use Development\AdminBypass\Helper\Config;
+use Development\Core\Model\ProductionGuard;
 use Magento\User\Model\User;
 
 class BypassAdminAuthentication
 {
     public function __construct(
-        private readonly Config $config
+        private readonly ProductionGuard $guard
     ) {
     }
 
@@ -19,7 +19,7 @@ class BypassAdminAuthentication
      */
     public function aroundVerifyIdentity(User $subject, \Closure $proceed, $password): bool
     {
-        if (!$this->config->isEnabled()) {
+        if (!$this->guard->isEnabled()) {
             return $proceed($password);
         }
 

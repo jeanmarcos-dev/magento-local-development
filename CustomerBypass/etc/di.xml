@@ -1,6 +1,19 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Development\CustomerBypass\Model\ProductionGuard"
+                 type="Development\Core\Model\ProductionGuard">
+        <arguments>
+            <argument name="configPath" xsi:type="string">development/customer_bypass/allow_in_production</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Development\CustomerBypass\Plugin\BypassCustomerAuthentication">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\CustomerBypass\Model\ProductionGuard</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Customer\Model\AccountManagement">
         <plugin name="development_customer_bypass_authentication"
                 type="Development\CustomerBypass\Plugin\BypassCustomerAuthentication"

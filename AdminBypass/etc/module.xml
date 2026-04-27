@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Development_AdminBypass">
         <sequence>
+            <module name="Development_Core"/>
             <module name="Magento_User"/>
             <module name="Magento_Backend"/>
             <module name="Magento_Authorization"/>

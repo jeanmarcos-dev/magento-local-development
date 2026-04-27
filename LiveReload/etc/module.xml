@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Development_LiveReload">
         <sequence>
+            <module name="Development_Core"/>
             <module name="Magento_Theme"/>
             <module name="Magento_Backend"/>
         </sequence>

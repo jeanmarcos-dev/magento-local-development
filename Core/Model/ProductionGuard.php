@@ -2,24 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Development\AdminBypass\Helper;
+namespace Development\Core\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
 
-class Config extends AbstractHelper
+/**
+ * Shared production guard for `Development_*` development-only modules.
+ *
+ * Returns `true` (active) when:
+ *   - Magento is NOT in production mode, OR
+ *   - the per-module `allow_in_production` flag is explicitly set to Yes.
+ *
+ * Consumers configure the per-module XML config path via virtual types in `di.xml`.
+ */
+class ProductionGuard
 {
-    private const XML_PATH_ALLOW_IN_PRODUCTION = 'development/admin_bypass/allow_in_production';
-
     public function __construct(
-        Context $context,
-        private readonly State $state
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly State $state,
+        private readonly string $configPath
     ) {
-        parent::__construct($context);
     }
 
     public function isEnabled(): bool
@@ -35,7 +40,7 @@ class Config extends AbstractHelper
         }
 
         return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_ALLOW_IN_PRODUCTION,
+            $this->configPath,
             ScopeInterface::SCOPE_STORE
         );
     }

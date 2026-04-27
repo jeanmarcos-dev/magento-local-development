@@ -2,9 +2,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="development" translate="label" sortOrder="999">
-            <label>&#x26A0; Development Modules</label>
-        </tab>
         <section id="development_admin_bypass"
                  translate="label"
                  sortOrder="10"

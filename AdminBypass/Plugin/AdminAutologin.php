@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Development\AdminBypass\Plugin;
 
-use Development\AdminBypass\Helper\Config;
+use Development\Core\Model\ProductionGuard;
 use Magento\Authorization\Model\ResourceModel\Role\CollectionFactory as RoleCollectionFactory;
 use Magento\Authorization\Model\RoleFactory;
 use Magento\Backend\Controller\Adminhtml\Auth\Login;
@@ -29,7 +29,7 @@ class AdminAutologin
         private readonly UserResource $userResource,
         private readonly RoleFactory $roleFactory,
         private readonly RoleCollectionFactory $roleCollectionFactory,
-        private readonly Config $config
+        private readonly ProductionGuard $guard
     ) {
     }
 
@@ -38,7 +38,7 @@ class AdminAutologin
      */
     public function aroundExecute(Login $subject, \Closure $proceed): ResultInterface
     {
-        if (!$this->config->isEnabled()) {
+        if (!$this->guard->isEnabled()) {
             return $proceed();
         }
 

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Development\LiveReload\Model\ProductionGuard"
+                 type="Development\Core\Model\ProductionGuard">
+        <arguments>
+            <argument name="configPath" xsi:type="string">development/live_reload/allow_in_production</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Development\LiveReload\Block\Head\LiveReloadScript">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\LiveReload\Model\ProductionGuard</argument>
+        </arguments>
+    </type>
+</config>

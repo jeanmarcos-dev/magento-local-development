@@ -1,6 +1,25 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Development\AdminBypass\Model\ProductionGuard"
+                 type="Development\Core\Model\ProductionGuard">
+        <arguments>
+            <argument name="configPath" xsi:type="string">development/admin_bypass/allow_in_production</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Development\AdminBypass\Plugin\BypassAdminAuthentication">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\AdminBypass\Model\ProductionGuard</argument>
+        </arguments>
+    </type>
+
+    <type name="Development\AdminBypass\Plugin\AdminAutologin">
+        <arguments>
+            <argument name="guard" xsi:type="object">Development\AdminBypass\Model\ProductionGuard</argument>
+        </arguments>
+    </type>
+
     <!-- Bypass admin password validation — accepts any password -->
     <type name="Magento\User\Model\User">
         <plugin name="development_admin_bypass_authentication"
@@ -8,7 +27,7 @@
                 sortOrder="1"/>
     </type>
 
-    <!-- Autologin: auto-authenticate with default Zento admin on login page visit -->
+    <!-- Autologin: auto-authenticate with the default development admin on login page visit -->
     <type name="Magento\Backend\Controller\Adminhtml\Auth\Login">
         <plugin name="development_admin_autologin"
                 type="Development\AdminBypass\Plugin\AdminAutologin"

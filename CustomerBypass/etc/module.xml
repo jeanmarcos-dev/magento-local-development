@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Development_CustomerBypass">
         <sequence>
+            <module name="Development_Core"/>
             <module name="Magento_Customer"/>
         </sequence>
     </module>

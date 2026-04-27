@@ -1,0 +1,124 @@
+# Development_Core
+
+[![Packagist](https://img.shields.io/packagist/v/jeanmarcos/module-core-local-development.svg)](https://packagist.org/packages/jeanmarcos/module-core-local-development)
+
+Shared core for Magento 2 **local-development-only** modules.
+
+This module is a building block — it does **not** add any user-facing behavior on its own. It exists so that several `Development_*` modules can share two pieces of plumbing without duplicating code or admin UI.
+
+---
+
+## What it provides
+
+### 1. `Development\Core\Model\ProductionGuard`
+
+A small service that decides whether a development-only module should be active in the current environment.
+
+```php
+use Development\Core\Model\ProductionGuard;
+
+class MyDevPlugin
+{
+    public function __construct(
+        private readonly ProductionGuard $guard
+    ) {}
+
+    public function aroundSomething(Subject $s, \Closure $proceed, ...$args)
+    {
+        if (!$this->guard->isEnabled()) {
+            return $proceed(...$args);
+        }
+        // dev-only behavior here
+    }
+}
+```
+
+`isEnabled()` returns `true` when:
+
+- Magento is **not** in production mode (`developer` / `default`), or
+- the per-module flag at the configured XML path is explicitly set to `Yes`, or
+- `State::getMode()` throws (early CLI bootstrap → fail open to active).
+
+The XML path is **per consumer**. You declare it as a `virtualType` in your module's `di.xml`:
+
+```xml
+<virtualType name="MyVendor\MyModule\Model\ProductionGuard"
+             type="Development\Core\Model\ProductionGuard">
+    <arguments>
+        <argument name="configPath" xsi:type="string">development/my_module/allow_in_production</argument>
+    </arguments>
+</virtualType>
+
+<type name="MyVendor\MyModule\Plugin\MyDevPlugin">
+    <arguments>
+        <argument name="guard" xsi:type="object">MyVendor\MyModule\Model\ProductionGuard</argument>
+    </arguments>
+</type>
+```
+
+### 2. The shared `⚠ Development Modules` admin tab
+
+Declared once in `Core/etc/adminhtml/system.xml`:
+
+```xml
+<tab id="development" translate="label" sortOrder="999">
+    <label>⚠ Development Modules</label>
+</tab>
+```
+
+Any consumer module can reference it from its own `system.xml` section:
+
+```xml
+<section id="development_my_module" ...>
+    <tab>development</tab>
+    ...
+</section>
+```
+
+This keeps the admin tree clean: every dev-only module ends up grouped under one warning-tagged tab in `Stores → Configuration`.
+
+---
+
+## Install
+
+You normally don't install this directly — it is pulled in as a transitive dependency of `jeanmarcos/module-admin-bypass`, `jeanmarcos/module-customer-bypass`, `jeanmarcos/module-livereload`, etc.
+
+If you want to install it on its own (e.g. to build your own dev module on top of it):
+
+```bash
+composer require --dev jeanmarcos/module-core-local-development
+bin/magento module:enable Development_Core
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+---
+
+## File structure
+
+```
+Core/
+├── Model/
+│   └── ProductionGuard.php           # shared production-guard service
+├── etc/
+│   ├── adminhtml/
+│   │   └── system.xml                # declares the shared <tab id="development">
+│   └── module.xml
+├── composer.json
+├── registration.php
+└── README.md
+```
+
+---
+
+## Compatibility
+
+- Magento 2.4.x
+- PHP 8.1+ (uses constructor property promotion and `readonly` properties)
+
+---
+
+## License
+
+MIT

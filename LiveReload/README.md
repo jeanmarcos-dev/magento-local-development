@@ -1,5 +1,7 @@
 # Development_LiveReload
 
+[![Packagist](https://img.shields.io/packagist/v/jeanmarcos/module-livereload.svg)](https://packagist.org/packages/jeanmarcos/module-livereload)
+
 > ⚠️ **FOR LOCAL DEVELOPMENT ONLY** — Production injection is disabled by default.
 
 Injects the [LiveReload](http://livereload.com/) browser auto-reload script into Magento 2 storefront and admin pages, so code changes refresh the browser without manual `F5`.
@@ -28,7 +30,7 @@ A local LiveReload server (e.g. `npx livereload ./pub`) must serve `/livereload.
 | `production` | `No` (default) | **not injected** |
 | `production` | `Yes` | **script injected** |
 
-Implementation: `Helper/Config.php::isEnabled()` + `Block\Head\LiveReloadScript::_toHtml()` — when disabled, returns an empty string so nothing reaches the page.
+Implementation: [`Development_Core`](https://packagist.org/packages/jeanmarcos/module-core-local-development) (`Development\Core\Model\ProductionGuard::isEnabled()`), wired via a `virtualType` in `etc/di.xml` bound to the config path `development/live_reload/allow_in_production`, plus `Block\Head\LiveReloadScript::_toHtml()` — when disabled, returns an empty string so nothing reaches the page.
 
 The block's `getCacheKeyInfo()` includes the flag, so layout/block cache stays consistent across toggles without needing a full cache flush.
 
@@ -46,6 +48,7 @@ Panel path: **Stores → Configuration → ⚠ Development Modules → Live Relo
 ## Install
 
 ```bash
+composer require --dev jeanmarcos/module-livereload
 bin/magento module:enable Development_LiveReload
 bin/magento setup:upgrade
 bin/magento cache:flush
@@ -69,6 +72,12 @@ bin/magento setup:upgrade
 bin/magento cache:flush
 ```
 
+For permanent removal:
+
+```bash
+composer remove jeanmarcos/module-livereload
+```
+
 ---
 
 ## Security and performance considerations
@@ -86,14 +95,13 @@ LiveReload/
 ├── Block/
 │   └── Head/
 │       └── LiveReloadScript.php
-├── Helper/
-│   └── Config.php
 ├── etc/
 │   ├── acl.xml
 │   ├── adminhtml/
 │   │   └── system.xml
 │   ├── config.xml
-│   └── module.xml
+│   ├── di.xml                       # block wiring + ProductionGuard virtualType
+│   └── module.xml                   # depends on Development_Core
 ├── view/
 │   ├── adminhtml/
 │   │   └── layout/
@@ -105,6 +113,7 @@ LiveReload/
 │   └── frontend/
 │       └── layout/
 │           └── default_head_blocks.xml
+├── composer.json
 ├── registration.php
 └── README.md
 ```
@@ -123,4 +132,10 @@ LiveReload/
 
 - Magento 2.4.x
 - PHP 8.1+
-- Depends on `Development_AdminBypass` only for the shared `development` tab definition in `Stores → Configuration`. If you use this module standalone, copy the `<tab id="development">` block from `AdminBypass/etc/adminhtml/system.xml` into this module's `system.xml`.
+- Depends on `jeanmarcos/module-core-local-development` (installed automatically by Composer).
+
+---
+
+## License
+
+MIT

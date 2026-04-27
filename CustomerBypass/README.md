@@ -1,5 +1,7 @@
 # Development_CustomerBypass
 
+[![Packagist](https://img.shields.io/packagist/v/jeanmarcos/module-customer-bypass.svg)](https://packagist.org/packages/jeanmarcos/module-customer-bypass)
+
 > ⚠️ **FOR LOCAL DEVELOPMENT ONLY — NEVER ENABLE IN PRODUCTION**
 
 Bypasses Magento 2 customer authentication. Any password is accepted for any existing customer account on storefront login.
@@ -24,7 +26,7 @@ Guarded by Magento's application mode:
 | `production` | `No` (default) | **inactive** — normal authentication |
 | `production` | `Yes` | **active** — explicit override |
 
-Implementation: `Helper/Config.php::isEnabled()`. When disabled, the plugin delegates to `$proceed($username, $password)` and Magento authenticates normally.
+Implementation: [`Development_Core`](https://packagist.org/packages/jeanmarcos/module-core-local-development) (`Development\Core\Model\ProductionGuard::isEnabled()`), wired via a `virtualType` in `etc/di.xml` bound to the config path `development/customer_bypass/allow_in_production`. When disabled, the plugin delegates to `$proceed($username, $password)` and Magento authenticates normally.
 
 ---
 
@@ -40,6 +42,7 @@ Panel path: **Stores → Configuration → ⚠ Development Modules → Customer 
 ## Install
 
 ```bash
+composer require --dev jeanmarcos/module-customer-bypass
 bin/magento module:enable Development_CustomerBypass
 bin/magento setup:upgrade
 bin/magento setup:di:compile
@@ -52,6 +55,12 @@ bin/magento cache:flush
 bin/magento module:disable Development_CustomerBypass
 bin/magento setup:upgrade
 bin/magento cache:flush
+```
+
+For permanent removal:
+
+```bash
+composer remove jeanmarcos/module-customer-bypass
 ```
 
 ---
@@ -68,8 +77,6 @@ bin/magento cache:flush
 
 ```
 CustomerBypass/
-├── Helper/
-│   └── Config.php                        # production-guard helper
 ├── Plugin/
 │   └── BypassCustomerAuthentication.php  # password bypass around plugin
 ├── etc/
@@ -77,11 +84,15 @@ CustomerBypass/
 │   ├── adminhtml/
 │   │   └── system.xml
 │   ├── config.xml
-│   ├── di.xml
-│   └── module.xml
+│   ├── di.xml                            # plugin wiring + ProductionGuard virtualType
+│   └── module.xml                        # depends on Development_Core
+├── composer.json
 ├── registration.php
 └── README.md
 ```
+
+The production-guard helper lives in the shared core package
+[`jeanmarcos/module-core-local-development`](https://packagist.org/packages/jeanmarcos/module-core-local-development).
 
 ---
 
@@ -96,4 +107,10 @@ CustomerBypass/
 
 - Magento 2.4.x
 - PHP 8.1+
-- Depends on `Development_AdminBypass` only for the shared `development` tab definition in `Stores → Configuration`. If `Development_AdminBypass` is disabled, this section may not appear; enable `Development_AdminBypass` or copy the `<tab id="development">` block into this module's `system.xml`.
+- Depends on `jeanmarcos/module-core-local-development` (installed automatically by Composer).
+
+---
+
+## License
+
+MIT

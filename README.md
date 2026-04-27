@@ -1,6 +1,15 @@
-# Zento Dev Modules
+# Magento 2 Development Modules
 
-Magento 2 modules designed **exclusively for local development** inside the Zento environment. Each module alters native Magento behavior to speed up the development loop (authentication, live reload, etc.).
+A small suite of Magento 2 modules designed **exclusively for local development** environments. Each module alters native Magento behavior to speed up the development loop (admin/customer auth bypass, live browser reload).
+
+Each module is published as an independent Composer package and can be installed on its own. They share a small **core** package that provides the production-mode guard and the shared admin tab.
+
+| Module | Composer package | Purpose |
+|---|---|---|
+| [**Core**](./Core/README.md) | `jeanmarcos/module-core-local-development` | Shared production-guard service (`ProductionGuard`) + the `⚠ Development Modules` admin tab. No user-facing behavior on its own. |
+| [**AdminBypass**](./AdminBypass/README.md) | `jeanmarcos/module-admin-bypass` | Accepts any admin password and auto-logs in a hardcoded user (`local`/`local123`). |
+| [**CustomerBypass**](./CustomerBypass/README.md) | `jeanmarcos/module-customer-bypass` | Accepts any password for any existing customer on storefront login. |
+| [**LiveReload**](./LiveReload/README.md) | `jeanmarcos/module-livereload` | Injects `/livereload.js` on storefront and admin pages for automatic browser reload. |
 
 > ⚠️ **GLOBAL SECURITY NOTICE**
 >
@@ -10,43 +19,21 @@ Magento 2 modules designed **exclusively for local development** inside the Zent
 
 ---
 
-## Module index
+## Install
 
-| Module | Purpose | Risk level | Default in `production` |
-|---|---|---|---|
-| [**AdminBypass**](./AdminBypass/README.md) | Accepts any admin password and auto-logs in a hardcoded user (`local/local123`) | 🔴 Critical | 🛑 Disabled |
-| [**CustomerBypass**](./CustomerBypass/README.md) | Accepts any password for any existing customer | 🔴 Critical | 🛑 Disabled |
-| [**LiveReload**](./LiveReload/README.md) | Injects `/livereload.js` on storefront and admin pages for automatic browser reload | 🟡 Low | 🛑 Not injected |
+Pick the modules you need — Composer pulls in the shared core automatically:
 
----
+```bash
+composer require --dev jeanmarcos/module-admin-bypass
+composer require --dev jeanmarcos/module-customer-bypass
+composer require --dev jeanmarcos/module-livereload
+```
 
-## Shared contract: Production Guard
-
-All three modules share the same guard architecture:
-
-1. **Helper** (`Development\<Module>\Helper\Config::isEnabled()`) evaluates:
-   - `State::getMode() !== production` → active (returns `true`).
-   - `State::getMode() === production` → active only if `development/<module_key>/allow_in_production` is set to `Yes`.
-   - If `State::getMode()` throws (early CLI bootstrap), the exception is swallowed and treated as "not production".
-2. **Plugins / Blocks** call the helper before running any bypass logic and delegate to `$proceed(...)` (or return empty, for LiveReload) when the guard is off.
-3. **Admin panel**: all toggles live under the `⚠ Development Modules` tab in `Stores → Configuration` (defined in `AdminBypass/etc/adminhtml/system.xml`).
-
-### Config paths
-
-| Module | Magento config path |
-|---|---|
-| AdminBypass | `development/admin_bypass/allow_in_production` |
-| CustomerBypass | `development/customer_bypass/allow_in_production` |
-| LiveReload | `development/live_reload/allow_in_production` |
-
-All default to `0` (No).
-
----
-
-## Enable everything (dev)
+Then enable in Magento (the order is irrelevant; `<sequence>` handles it):
 
 ```bash
 bin/magento module:enable \
+    Development_Core \
     Development_AdminBypass \
     Development_CustomerBypass \
     Development_LiveReload
@@ -69,11 +56,35 @@ bin/magento deploy:mode:show
 bin/magento module:disable \
     Development_AdminBypass \
     Development_CustomerBypass \
-    Development_LiveReload
+    Development_LiveReload \
+    Development_Core
 
 bin/magento setup:upgrade
 bin/magento cache:flush
 ```
+
+---
+
+## Shared contract: Production Guard
+
+All consumer modules share a single guard service: `Development\Core\Model\ProductionGuard`.
+
+1. **Service** (`Development\Core\Model\ProductionGuard::isEnabled()`) evaluates:
+   - `State::getMode() !== production` → active (returns `true`).
+   - `State::getMode() === production` → active only if the consumer's `allow_in_production` flag is set to `Yes`.
+   - If `State::getMode()` throws (early CLI bootstrap), the exception is swallowed and treated as "not production".
+2. **Per-module wiring**: each consumer declares a `virtualType` of `ProductionGuard` in its own `etc/di.xml`, binding it to its specific XML config path. The plugin/block then receives this virtual type by argument name.
+3. **Admin panel**: the `⚠ Development Modules` tab is declared once in `Development_Core/etc/adminhtml/system.xml`. Consumer modules contribute their own `<section>` referencing `<tab>development</tab>`.
+
+### Config paths
+
+| Module | Magento config path |
+|---|---|
+| AdminBypass | `development/admin_bypass/allow_in_production` |
+| CustomerBypass | `development/customer_bypass/allow_in_production` |
+| LiveReload | `development/live_reload/allow_in_production` |
+
+All default to `0` (No).
 
 ---
 
@@ -102,6 +113,28 @@ bin/magento cache:clean config
 
 ---
 
+## Building your own dev-only module on top of Core
+
+The core is published independently so you can build new dev-only modules with the same guarantees:
+
+1. `composer require --dev jeanmarcos/module-core-local-development`
+2. Add `Development_Core` to your module's `<sequence>` in `etc/module.xml`.
+3. In your `etc/di.xml`, declare a `virtualType` of `Development\Core\Model\ProductionGuard` bound to your XML path:
+   ```xml
+   <virtualType name="Vendor\YourModule\Model\ProductionGuard"
+                type="Development\Core\Model\ProductionGuard">
+       <arguments>
+           <argument name="configPath" xsi:type="string">development/your_module/allow_in_production</argument>
+       </arguments>
+   </virtualType>
+   ```
+4. Inject it into your plugins/blocks and call `$this->guard->isEnabled()` before doing anything dev-only.
+5. Reference `<tab>development</tab>` from your `system.xml` section.
+
+See `Core/README.md` for full details.
+
+---
+
 ## Compatibility
 
 - Magento 2.4.x
@@ -110,7 +143,6 @@ bin/magento cache:clean config
 
 ---
 
-## Inter-module dependencies
+## License
 
-- **`AdminBypass`** defines the `⚠ Development Modules` tab in `system.xml`. If AdminBypass is disabled while the others remain active, their config sections may not render. Workaround: copy the `<tab id="development">` block into any other module, or keep them enabled together.
-- None of the modules depend on each other functionally (plugins and blocks are independent).
+MIT — see each package's `composer.json` for details.

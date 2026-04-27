@@ -1,5 +1,7 @@
 # Development_AdminBypass
 
+[![Packagist](https://img.shields.io/packagist/v/jeanmarcos/module-admin-bypass.svg)](https://packagist.org/packages/jeanmarcos/module-admin-bypass)
+
 > ⚠️ **FOR LOCAL DEVELOPMENT ONLY — NEVER ENABLE IN PRODUCTION**
 
 Bypasses Magento 2 admin authentication and auto-logs in a hardcoded development user (`local` / `local123`) whenever the admin login page is visited.
@@ -23,7 +25,7 @@ This module is **guarded by Magento's application mode**:
 | `production` | `No` (default) | **inactive** — Magento behaves normally, no user is created |
 | `production` | `Yes` | **active** — explicit override (use at your own risk) |
 
-The guard is implemented in `Helper/Config.php::isEnabled()` and called at the top of every plugin. In production + flag off, the plugins short-circuit with `$proceed(...)` and do **not** create the `local` user nor touch authentication.
+The guard is implemented in [`Development_Core`](https://packagist.org/packages/jeanmarcos/module-core-local-development) (`Development\Core\Model\ProductionGuard::isEnabled()`) and wired into every plugin via a `virtualType` in `etc/di.xml` that binds it to the config path `development/admin_bypass/allow_in_production`. In production + flag off, the plugins short-circuit with `$proceed(...)` and do **not** create the `local` user nor touch authentication.
 
 ---
 
@@ -39,6 +41,7 @@ Panel path: **Stores → Configuration → ⚠ Development Modules → Admin Byp
 ## Install
 
 ```bash
+composer require --dev jeanmarcos/module-admin-bypass
 bin/magento module:enable Development_AdminBypass
 bin/magento setup:upgrade
 bin/magento setup:di:compile
@@ -54,6 +57,12 @@ bin/magento cache:flush
 ```
 
 The `disable` path is the last line of defense — it removes the module entirely regardless of the `allow_in_production` flag.
+
+For permanent removal:
+
+```bash
+composer remove jeanmarcos/module-admin-bypass
+```
 
 ---
 
@@ -75,8 +84,6 @@ DELETE FROM admin_user WHERE username = 'local';
 
 ```
 AdminBypass/
-├── Helper/
-│   └── Config.php                     # production-guard helper
 ├── Plugin/
 │   ├── AdminAutologin.php             # autologin around plugin
 │   └── BypassAdminAuthentication.php  # password bypass around plugin
@@ -85,11 +92,15 @@ AdminBypass/
 │   ├── adminhtml/
 │   │   └── system.xml                 # admin panel toggle
 │   ├── config.xml                     # default values
-│   ├── di.xml                         # plugin wiring
-│   └── module.xml                     # module declaration
+│   ├── di.xml                         # plugin wiring + ProductionGuard virtualType
+│   └── module.xml                     # module declaration (depends on Development_Core)
+├── composer.json
 ├── registration.php
 └── README.md
 ```
+
+The production-guard helper lives in the shared core package
+[`jeanmarcos/module-core-local-development`](https://packagist.org/packages/jeanmarcos/module-core-local-development).
 
 ---
 
@@ -105,3 +116,10 @@ AdminBypass/
 
 - Magento 2.4.x
 - PHP 8.1+ (uses constructor property promotion and `readonly` properties)
+- Depends on `jeanmarcos/module-core-local-development` (installed automatically by Composer).
+
+---
+
+## License
+
+MIT
